@@ -31,10 +31,8 @@ void generator(vector <char> letters)
 	// автоматическая рандомизацияр генератора случайных чисел
 	//позволяет каждый раз получать рандомные числа, отличные от предыдущего запуска
 	srand(time(0)); 
-	for (int i = 0; i < n; )
-	{
-		for (int k = 0; k < numb_letter; k++)
-		{
+	for (int i = 0; i < n; ) {
+		for (int k = 0; k < numb_letter; k++) {
 			int j = 0 + rand() % (letters.size() - 1);
 			word[k] = letters[j];
 		}
@@ -43,7 +41,7 @@ void generator(vector <char> letters)
 			book[i] = word;
 			i++;
 		}
-	}
+	}//перемешивает слова в тексте
 	random_shuffle(book.begin(), book.end());
 	for (int i = 0; i < n; i++)
 		if (i % 10 == 0 && i) fout << book[i] << endl;
