@@ -3,6 +3,7 @@
 #include <map>
 #include <vector>
 #include <functional>
+#include <ctime>
 
 using namespace std;
 
@@ -58,8 +59,7 @@ void find_pairs(multimap <int, pair<string, string>, greater<>>& often_pair, vec
 			if (i == begin(book)) add_pair(pairs, *i, *(i + 1));
 			else//добавление пары, если слово является последним в тексте
 				if (i == end(book) - 1) add_pair(pairs, *(i - 1), *i);
-				else
-				{	//добавление пары, если слово стоит в середине текста
+				else {	//добавление пары, если слово стоит в середине текста
 					add_pair(pairs, *(i - 1), *i);
 					add_pair(pairs, *i, *(i + 1));
 				}
@@ -69,16 +69,18 @@ void find_pairs(multimap <int, pair<string, string>, greater<>>& often_pair, vec
 	pairs.clear();
 }
 
-void output(multimap <int, pair<string, string>, greater<>> often_pair)
+void output(string word, multimap <int, pair<string, string>, greater<>> often_pair, float result_time)
 {
 	int n, j = 0;
 	ifstream fin("n.txt");
 	ofstream fout("output.txt");
 	fin >> n;
 	fin.close();
+	fout << "Most often words" << endl << word << endl << endl;
 	fout << "Most often pairs of words and numb of their" << endl;
-	for (auto i = begin(often_pair); j < n; j++, i++)
+	for (auto i = begin(often_pair); i != end(often_pair) && j < n; j++, i++)
 		fout << i->second.first << ' ' << i->second.second << '\t' << i->first << endl;
+	fout << endl << "time" << endl << result_time << endl;
 	fout.close();
 }
 
@@ -87,10 +89,13 @@ void main()
 	vector <string> book;
 	multimap <int, string> repeat_words;
 	multimap <int, pair<string, string>, greater<>> often_pair;
-	string word = find_often_word(book, repeat_words);
 	input(book);
+	double beg_time = clock();
+	string word = find_often_word(book, repeat_words);
 	find_pairs(often_pair, book, word);
-	output(often_pair);
+	double end_time = clock();
+	double result_time = (end_time - beg_time) / CLOCKS_PER_SEC;
+	output(word, often_pair, result_time);
 	book.clear();
 	repeat_words.clear();
 	often_pair.clear();
