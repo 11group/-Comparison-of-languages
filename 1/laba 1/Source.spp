@@ -1,0 +1,103 @@
+#include <fstream>
+#include <string>
+#include <map>
+#include <vector>
+#include <functional>
+#include <ctime>
+#include <algorithm>
+
+using namespace std;
+
+void input(vector <string>& book)
+{
+	ifstream fin("numb_texts.txt");
+	int numb;
+	fin >> numb;
+	fin.close();
+	switch (numb)
+	{
+	case 1: fin.open("text1.txt"); break;
+	case 2: fin.open("text2.txt"); break;
+	case 3: fin.open("text3.txt"); break;
+	case 4: fin.open("text4.txt"); break;
+	case 5: fin.open("text5.txt"); break;
+	default: fin.open("text1.txt");
+	}
+	string word;
+	//запись книги
+	while (fin >> word)
+		book.push_back(word);
+	fin.close();
+}
+
+//поиск наиболее часто встречающегося слова
+pair<string,int> find_often_word(const vector <string>& book, multimap <int, string>& repeat_words)
+{
+	map <string, int> repeat;
+	//проход по всей книге
+	for (auto i : book)repeat[i]++;
+	/* другой вариант написания строк 48-49
+	auto res=max_element(repeat.begin(),repeat.end(),
+		[&](const pair<string, int>& a, const pair<string, int>& b) {return a.second < b.second;}
+	);
+	*/
+	pair<string, int> res("", 0);
+	for (auto p : repeat)if (p.second > res.second)res = p;
+
+	return res;
+}
+
+//поиск наиболее часто встречающихся пар слов
+void find_pairs(multimap <int, pair<string, string>, greater<>>& often_pair, vector <string>& book, pair<string, int> word)
+{
+	map <pair<string, string>, int> pairs;
+	if (*begin(book) == word.first)
+		pairs[make_pair(word.first, *(begin(book) + 1))]++;
+	if (*(end(book)-1) == word.first)
+		pairs[make_pair(*(end(book) -2),word.first)]++;
+	//проход по всей книге
+	for (auto i = begin(book)+1; i < end(book)-1; i++)
+		//если выбранное слово совпадает с ключевым
+		if (*i == word.first) {
+			pairs[make_pair(word.first, *(i+1))]++;
+			pairs[make_pair(*(i - 1),word.first)]++;
+		}
+	//проходя по всему словарю меняем местами ключ и значение
+	for (auto i : pairs)
+		often_pair.insert({ i.second, i.first });
+}
+
+void output(pair<string, int> word, multimap <int, pair<string, string>, greater<>> often_pair, float result_time)
+{
+	int n, j = 0;
+	ifstream fin("n.txt");
+	ofstream fout("output.txt");
+	fin >> n;
+	fin.close();
+	fout << "Most often words" << endl << word.first << '\t' << word.second << endl << endl;
+	fout << "Most often pairs of words and numb of their" << endl;
+	for (auto i = begin(often_pair); i != end(often_pair) && j < n; j++, i++)
+		fout << i->second.first << ' ' << i->second.second << '\t' << i->first << endl;
+	fout << endl << "time" << endl << result_time << endl;
+	fout.close();
+}
+
+void main()
+{
+	vector <string> book;
+	multimap <int, string> repeat_words;
+	multimap <int, pair<string, string>, greater<>> often_pair;
+
+	input(book);
+	double beg_time = clock();
+
+	pair<string,int> word = find_often_word(book, repeat_words);
+	find_pairs(often_pair, book, word);
+	double end_time = clock();
+	double result_time = (end_time - beg_time)/* / CLOCKS_PER_SEC*/;
+
+	output(word, often_pair, result_time);
+	book.clear();
+	repeat_words.clear();
+	often_pair.clear();
+}
