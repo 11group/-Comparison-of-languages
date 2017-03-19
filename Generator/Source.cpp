@@ -30,13 +30,14 @@ void generator(vector <char> letters)
 	book.resize(n);
 	// автоматическая рандомизацияр генератора случайных чисел
 	//позволяет каждый раз получать рандомные числа, отличные от предыдущего запуска
-	srand(time(0)); 
+	srand(0); int count = 0, s = 0;
 	for (int i = 0; i < n; ) {
 		for (int k = 0; k < numb_letter; k++) {
 			int j = 0 + rand() % (letters.size() - 1);
 			word[k] = letters[j];
 		}
-		int s = 1 + rand() % (letters.size() / 2);
+		if (!count) { s = 50000; count++; }
+		else s = 1 + rand() % (letters.size());
 		for (int k = 0; k < s && i < n; k++) {
 			book[i] = word;
 			i++;
